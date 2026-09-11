@@ -1,0 +1,6 @@
+# Optional host access for DBeaver or a locally running FastAPI process.
+# Use a different published port if a native PostgreSQL already uses 5433.
+services:
+  db:
+    ports:
+      - '127.0.0.1:${DOCKER_DB_PORT:-5434}:5432'
