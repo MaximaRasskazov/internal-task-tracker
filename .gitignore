@@ -1,0 +1,34 @@
+# Local settings and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
+dist/
+build/
+
+# JavaScript / browser artifacts (frontend is planned)
+node_modules/
+coverage/
+test-results/
+playwright-report/
+
+# Local tools, DB clusters, installation logs, recordings
+/work/
+*.log
+/internal-task-tracker-kit.zip
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
