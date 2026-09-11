@@ -41,15 +41,11 @@ def run_utility(command: list[str], password: str, log_path: Path) -> None:
     environment = os.environ.copy()
     environment["PGPASSWORD"] = password
     environment["PGCONNECT_TIMEOUT"] = "10"
-    result = subprocess.run(
-        command, env=environment, capture_output=True, check=False, timeout=180
-    )
+    result = subprocess.run(command, env=environment, capture_output=True, check=False, timeout=180)
     # Utility diagnostics may contain schema names. Keep them in ignored work/.
     log_path.write_bytes(result.stdout + result.stderr)
     if result.returncode:
-        raise RuntimeError(
-            f"PostgreSQL utility exited with {result.returncode}; see {log_path}"
-        )
+        raise RuntimeError(f"PostgreSQL utility exited with {result.returncode}; see {log_path}")
 
 
 async def fingerprint(
@@ -81,9 +77,7 @@ async def verify(args: argparse.Namespace) -> None:
     runtime = urlsplit(runtime_url)
     database = unquote(owner.path.lstrip("/"))
     if not database or not owner.hostname or not owner.username or not owner.password:
-        raise RuntimeError(
-            "MIGRATION_DATABASE_URL must have a host, database and credentials"
-        )
+        raise RuntimeError("MIGRATION_DATABASE_URL must have a host, database and credentials")
     owner_name = unquote(owner.username)
     owner_password = unquote(owner.password)
     runtime_name = unquote(runtime.username or "")
@@ -165,7 +159,8 @@ async def verify(args: argparse.Namespace) -> None:
             f"REVOKE ALL ON DATABASE {quote_identifier(target)} FROM PUBLIC"
         )
         await administrator.execute(
-            f"GRANT CONNECT ON DATABASE {quote_identifier(target)} TO {quote_identifier(runtime_name)}"
+            f"GRANT CONNECT ON DATABASE {quote_identifier(target)} "
+            f"TO {quote_identifier(runtime_name)}"
         )
     finally:
         await administrator.close()
@@ -211,9 +206,7 @@ async def verify(args: argparse.Namespace) -> None:
                     raise
                 audit_owner_trigger = True
             else:
-                raise RuntimeError(
-                    "Audit delete trigger did not reject the owner mutation"
-                )
+                raise RuntimeError("Audit delete trigger did not reject the owner mutation")
             finally:
                 await transaction.rollback()
         else:
@@ -230,13 +223,15 @@ async def verify(args: argparse.Namespace) -> None:
     try:
         permissions = dict(
             await app_connection.fetchrow(
-                "SELECT has_schema_privilege(current_user,'public','CREATE') AS can_create_schema_objects, "
+                "SELECT has_schema_privilege(current_user,'public','CREATE') "
+                "AS can_create_schema_objects, "
                 "has_table_privilege(current_user,'tasks','INSERT') AS can_insert_tasks, "
                 "has_table_privilege(current_user,'tasks','UPDATE') AS can_update_tasks, "
                 "has_table_privilege(current_user,'audit_events','INSERT') AS can_insert_audit, "
                 "has_table_privilege(current_user,'audit_events','UPDATE') AS can_update_audit, "
                 "has_table_privilege(current_user,'audit_events','DELETE') AS can_delete_audit, "
-                "has_table_privilege(current_user,'alembic_version','UPDATE') AS can_update_migration_head"
+                "has_table_privilege(current_user,'alembic_version','UPDATE') "
+                "AS can_update_migration_head"
             )
         )
         expected = {
@@ -249,9 +244,7 @@ async def verify(args: argparse.Namespace) -> None:
             "can_update_migration_head": False,
         }
         if permissions != expected:
-            raise RuntimeError(
-                "Restored runtime permissions differ from the expected policy"
-            )
+            raise RuntimeError("Restored runtime permissions differ from the expected policy")
         transaction = app_connection.transaction()
         await transaction.start()
         try:
@@ -259,9 +252,7 @@ async def verify(args: argparse.Namespace) -> None:
                 "UPDATE tasks SET title=title WHERE id=(SELECT id FROM tasks LIMIT 1)"
             )
             if result != "UPDATE 1":
-                raise RuntimeError(
-                    "Runtime write check needs at least one restored task"
-                )
+                raise RuntimeError("Runtime write check needs at least one restored task")
         finally:
             await transaction.rollback()
     finally:

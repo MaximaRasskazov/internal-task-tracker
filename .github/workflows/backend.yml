@@ -52,8 +52,8 @@ jobs:
           ALTER DEFAULT PRIVILEGES FOR ROLE tracker_owner IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO tracker;
           ALTER DEFAULT PRIVILEGES FOR ROLE tracker_owner IN SCHEMA public GRANT USAGE, SELECT ON SEQUENCES TO tracker;
           SQL
-      - run: uv run ruff check .
-      - run: uv run ruff format --check .
+      - run: uv run ruff check --config pyproject.toml . ../scripts
+      - run: uv run ruff format --check --config pyproject.toml . ../scripts
       - run: uv run mypy app
       - run: uv run pytest
       - run: uv run python -m app.cli.export_openapi --check
