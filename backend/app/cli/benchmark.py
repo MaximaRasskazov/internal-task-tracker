@@ -52,6 +52,7 @@ CLIENTS = 10
 RPS = 10
 WARMUP_SECONDS = 30
 MEASURE_SECONDS = 300
+NO_WINDOW_CREATION_FLAGS = int(getattr(subprocess, "CREATE_NO_WINDOW", 0))
 
 
 def identity(kind: str, index: int) -> UUID:
@@ -502,7 +503,7 @@ def hardware() -> dict[str, Any]:
             capture_output=True,
             text=True,
             check=False,
-            creationflags=subprocess.CREATE_NO_WINDOW,
+            creationflags=NO_WINDOW_CREATION_FLAGS,
         )
         if process.returncode == 0:
             result.update(json.loads(process.stdout))
@@ -544,7 +545,7 @@ def git_core_ref() -> str | None:
             text=True,
             check=False,
             timeout=5,
-            creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0,
+            creationflags=NO_WINDOW_CREATION_FLAGS,
         )
     except (OSError, subprocess.TimeoutExpired):
         return None
@@ -603,7 +604,7 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
     backend = PROJECT_ROOT / "backend"
     args.output.parent.mkdir(parents=True, exist_ok=True)
     log_path = args.output.with_suffix(".log")
-    creationflags = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
+    creationflags = NO_WINDOW_CREATION_FLAGS
     with log_path.open("wb") as log:
         migrated = await asyncio.to_thread(
             subprocess.run,
