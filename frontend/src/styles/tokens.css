@@ -1,0 +1,8 @@
+:root {
+  --text: #26384c;
+  --muted: #65758a;
+  --background: #edf2f7;
+  --line: #dce4ed;
+  --radius: 18px;
+  color-scheme: light;
+}
